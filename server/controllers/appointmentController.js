@@ -6,6 +6,7 @@ const User = require('../models/User');
 const mailService = require('../services/mail');
 const smsService = require('../services/sms');
 const { generateReceiptPDF, generatePrescriptionPDF } = require('../services/pdf');
+const cloudinaryService = require('../services/cloudinary');
 
 // @desc    Book a new appointment
 // @route   POST /api/appointments
@@ -48,9 +49,10 @@ exports.bookAppointment = async (req, res, next) => {
 
     let reportList = [];
     if (req.file) {
+      const uploadUrl = await cloudinaryService.uploadToCloudinary(req.file);
       reportList.push({
         reportName: req.file.originalname,
-        reportUrl: `/uploads/${req.file.filename}`
+        reportUrl: uploadUrl
       });
     } else if (medicalReports) {
       reportList = Array.isArray(medicalReports) ? medicalReports : [medicalReports];

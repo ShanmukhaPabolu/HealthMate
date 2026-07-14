@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Create Axios Instance
 export const api = axios.create({
-  baseURL: '/api'
+  baseURL: import.meta.env.VITE_API_URL || '/api'
 });
 
 // Request interceptor to inject JWT token

@@ -278,68 +278,78 @@ const Dashboard = () => {
         </section>
 
         {/* Appointments Schedule Directory */}
-        <section style={{ padding: '4rem 0', background: 'var(--bg-dark)' }}>
+        <section style={{ padding: '4rem 0', background: 'var(--clr-gray-50)' }}>
           <div className="container">
-            <div style={{
-              backgroundColor: 'rgba(255,255,255,0.05)',
-              backdropFilter: 'blur(20px)',
-              borderRadius: '24px',
-              padding: '40px',
-              border: '1px solid var(--border-subtle)',
-              boxShadow: 'var(--shadow-lg)',
-              color: 'white'
-            }}>
-              <h2 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '25px' }}>My Scheduled Consultations</h2>
+            <div className="card card-lg" style={{ color: 'var(--clr-gray-900)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '1rem' }}>
+                <h2 style={{ fontSize: '1.6rem', fontWeight: 900, margin: 0 }}>My Scheduled Consultations</h2>
+                <span className="badge badge-primary">
+                  <i className="fas fa-calendar-alt" /> {appointments.length} Booked
+                </span>
+              </div>
+              
               {appointments.length === 0 ? (
-                <p style={{ color: 'var(--text-secondary)' }}>No scheduled consultations booked yet. Start booking specialists using the button above.</p>
+                <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+                  <i className="fas fa-calendar-times" style={{ fontSize: '3rem', color: 'var(--clr-gray-300)', marginBottom: '16px', display: 'block' }} />
+                  <p style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.95rem', margin: 0 }}>No consultations booked yet.</p>
+                  <button onClick={() => navigate('/doctors')} className="btn btn-primary" style={{ marginTop: '16px' }}>
+                    Find a Doctor & Book
+                  </button>
+                </div>
               ) : (
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+                <div className="data-table-scroll">
+                  <table className="data-table">
                     <thead>
-                      <tr style={{ borderBottom: '2px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>
-                        <th style={{ padding: '12px' }}>Doctor</th>
-                        <th style={{ padding: '12px' }}>Date</th>
-                        <th style={{ padding: '12px' }}>Time Slot</th>
-                        <th style={{ padding: '12px' }}>Consultation</th>
-                        <th style={{ padding: '12px' }}>Queue Position</th>
-                        <th style={{ padding: '12px' }}>Status</th>
-                        <th style={{ padding: '12px' }}>Actions</th>
+                      <tr>
+                        <th>Doctor</th>
+                        <th>Date</th>
+                        <th>Time Slot</th>
+                        <th>Consultation</th>
+                        <th>Queue Position</th>
+                        <th>Status</th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {appointments.map((app) => (
-                        <tr key={app._id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                          <td style={{ padding: '12px', fontWeight: 'bold' }}>Dr. {app.doctor?.user?.name} ({app.doctor?.specialization})</td>
-                          <td style={{ padding: '12px' }}>{new Date(app.date).toLocaleDateString()}</td>
-                          <td style={{ padding: '12px' }}>{app.slot}</td>
-                          <td style={{ padding: '12px', textTransform: 'capitalize' }}>{app.consultationType}</td>
-                          <td style={{ padding: '12px', fontWeight: 'bold', color: 'var(--accent-blue)' }}>#{app.queuePosition || 1}</td>
-                          <td style={{ padding: '12px' }}>
-                            <span style={{
-                              padding: '3px 8px',
-                              borderRadius: '50px',
-                              fontSize: '11px',
-                              fontWeight: 'bold',
-                              background: app.status === 'completed' ? 'rgba(40,167,69,0.1)' : app.status === 'accepted' ? 'rgba(0,123,255,0.1)' : 'rgba(253,126,20,0.1)',
-                              color: app.status === 'completed' ? 'var(--accent-green)' : app.status === 'accepted' ? 'var(--accent-blue)' : 'var(--accent-orange)'
-                            }}>{app.status}</span>
+                        <tr key={app._id}>
+                          <td style={{ fontWeight: '700', color: 'var(--clr-gray-900)' }}>
+                            Dr. {app.doctor?.user?.name}
+                            <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
+                              {app.doctor?.specialization}
+                            </span>
                           </td>
-                          <td style={{ padding: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                            {app.status === 'accepted' && (
-                              <button onClick={() => handleOpenChat(app.doctor)} className="btn btn-primary" style={{ padding: '5px 12px', fontSize: '11.5px', borderRadius: '6px', background: 'var(--secondary-gradient)' }}>
-                                <i className="fas fa-comments"></i> Chat
-                              </button>
-                            )}
-                            {app.status === 'completed' && app.prescription && (
-                              <button onClick={() => handleDownloadPDF(app._id, 'prescription')} className="btn btn-secondary" style={{ padding: '5px 12px', fontSize: '11.5px', borderRadius: '6px' }}>
-                                <i className="fas fa-file-prescription"></i> Prescription
-                              </button>
-                            )}
-                            {app.paymentStatus === 'paid' && (
-                              <button onClick={() => handleDownloadPDF(app._id, 'receipt')} className="btn btn-secondary" style={{ padding: '5px 12px', fontSize: '11.5px', borderRadius: '6px' }}>
-                                <i className="fas fa-file-invoice-dollar"></i> Receipt
-                              </button>
-                            )}
+                          <td>{new Date(app.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                          <td style={{ fontWeight: 600 }}>{app.slot}</td>
+                          <td style={{ textTransform: 'capitalize' }}>
+                            <span className={`badge ${app.consultationType === 'online' ? 'badge-blue' : 'badge-purple'}`}>
+                              {app.consultationType}
+                            </span>
+                          </td>
+                          <td style={{ fontWeight: '800', color: 'var(--clr-blue)' }}>#{app.queuePosition || 1}</td>
+                          <td>
+                            <span className={`badge badge-${app.status === 'accepted' ? 'confirmed' : app.status === 'completed' ? 'completed' : 'pending'}`}>
+                              {app.status}
+                            </span>
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                              {app.status === 'accepted' && (
+                                <button onClick={() => handleOpenChat(app.doctor)} className="btn btn-sm btn-blue">
+                                  <i className="fas fa-comments"></i> Chat
+                                </button>
+                              )}
+                              {app.status === 'completed' && app.prescription && (
+                                <button onClick={() => handleDownloadPDF(app._id, 'prescription')} className="btn btn-sm btn-secondary">
+                                  <i className="fas fa-file-prescription"></i> Rx
+                                </button>
+                              )}
+                              {app.paymentStatus === 'paid' && (
+                                <button onClick={() => handleDownloadPDF(app._id, 'receipt')} className="btn btn-sm btn-secondary">
+                                  <i className="fas fa-file-invoice-dollar"></i> Receipt
+                                </button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))}

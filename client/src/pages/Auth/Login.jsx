@@ -2,10 +2,8 @@ import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { NotificationContext } from '../../context/NotificationContext';
-import ParticlesBackground from '../../components/ParticlesBackground';
-import CustomCursor from '../../components/CustomCursor';
-import SirenEffectContainer from '../../components/SirenEffectContainer';
-import LoadingScreen from '../../components/LoadingScreen';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 
 const Login = () => {
   const { login, verifyOtp, register, user } = useContext(AuthContext);
@@ -16,8 +14,8 @@ const Login = () => {
 
   // Page states
   const [isLoginMode, setIsLoginMode] = useState(true);
-  const [sirenEvents, setSirenEvents] = useState([]);
   const [showOtpScreen, setShowOtpScreen] = useState(false);
+  const [formErrors, setFormErrors] = useState([]);
 
   // Form Fields
   const [email, setEmail] = useState('');
@@ -35,15 +33,15 @@ const Login = () => {
     }
   }, [user, navigate]);
 
-  const handleSiren = (x, y) => {
-    const el = document.elementFromPoint(x, y);
-    if (el && (el.tagName === 'A' || el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.closest('.toggle-btn') || el.closest('.back-home'))) return;
-    setSirenEvents(prev => [...prev, { x, y, id: Date.now() }]);
-  };
+  // Reset errors on toggle
+  useEffect(() => {
+    setFormErrors([]);
+  }, [isLoginMode, showOtpScreen]);
 
   // Submit Login credentials -> triggers OTP email
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
+    setFormErrors([]);
     try {
       const data = await login(email, password, 'patient');
       if (data.success) {
@@ -51,13 +49,16 @@ const Login = () => {
         setShowOtpScreen(true);
       }
     } catch (err) {
-      triggerToast(err.response?.data?.message || 'Login failed. Invalid email/password.', 'error');
+      const errors = err.response?.data?.errors || [err.response?.data?.message || 'Login failed. Invalid email/password.'];
+      setFormErrors(errors);
+      triggerToast('Please check the errors highlighted in the form.', 'error');
     }
   };
 
   // Submit Registration -> triggers welcome email
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
+    setFormErrors([]);
     try {
       const data = await register(name, email, password, phone);
       if (data.success) {
@@ -65,13 +66,16 @@ const Login = () => {
         setIsLoginMode(true); // Toggle to login after registration success
       }
     } catch (err) {
-      triggerToast(err.response?.data?.message || 'Registration failed.', 'error');
+      const errors = err.response?.data?.errors || [err.response?.data?.message || 'Registration failed.'];
+      setFormErrors(errors);
+      triggerToast('Please check the errors highlighted in the form.', 'error');
     }
   };
 
   // Submit OTP verification -> Logs user session
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
+    setFormErrors([]);
     try {
       const data = await verifyOtp(email, otp);
       if (data.success) {
@@ -79,264 +83,253 @@ const Login = () => {
         navigate(returnTo);
       }
     } catch (err) {
-      triggerToast(err.response?.data?.message || 'Verification failed. Invalid OTP.', 'error');
+      const errors = err.response?.data?.errors || [err.response?.data?.message || 'Verification failed. Invalid OTP.'];
+      setFormErrors(errors);
+      triggerToast('Invalid OTP entered.', 'error');
     }
   };
 
   return (
     <>
-      <div className="background-effects">
-        <div className="glow-orb glow-orb-1"></div>
-        <div className="glow-orb glow-orb-2"></div>
-        <div className="glow-orb glow-orb-3"></div>
-      </div>
+      <Header />
       
-      <ParticlesBackground />
-      <CustomCursor onSiren={handleSiren} />
-      <SirenEffectContainer sirenEvents={sirenEvents} />
-      <LoadingScreen text="HEALTHTRACKER LOGIN" subtitle="Authenticate securely" />
-
-      <Link to="/" className="back-home" style={{
-        position: 'fixed',
-        top: '30px',
-        left: '30px',
-        zIndex: 1001,
-        color: 'var(--text-primary)',
-        textDecoration: 'none',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        fontWeight: '600',
-        fontSize: '15px'
-      }}>
-        <i className="fas fa-arrow-left"></i> Back to Home
-      </Link>
-
-      <div className="auth-container" style={{
-        display: 'flex',
-        width: '90%',
-        maxWidth: '1200px',
-        minHeight: '650px',
-        margin: '80px auto',
-        backgroundColor: 'rgba(255, 255, 255, 0.85)',
-        backdropFilter: 'blur(20px)',
-        borderRadius: '30px',
-        border: '1px solid var(--border-subtle)',
-        overflow: 'hidden',
-        boxShadow: 'var(--shadow-xl)'
-      }}>
-        {/* Branding Left Panel */}
-        <div className="auth-branding" style={{
-          flex: 1,
-          background: 'linear-gradient(135deg, rgba(220, 53, 69, 0.05) 0%, rgba(0, 123, 255, 0.05) 100%)',
-          padding: '50px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          borderRight: '1px solid var(--border-subtle)'
-        }}>
-          <div className="branding-content">
-            <h1 className="branding-title gradient-text" style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '1.5rem' }}>HealthTracker Pro</h1>
-            <p className="branding-subtitle" style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '1.05rem' }}>
-              Manage your personal health records, schedules, medications, and consult professional doctors securely in one unified hub.
-            </p>
-            <ul className="branding-features" style={{ listStyle: 'none', padding: 0 }}>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', color: 'var(--text-primary)', fontWeight: '600' }}>
-                <i className="fas fa-check-circle" style={{ color: 'var(--accent-color)' }}></i> Secure Encrypted Records
-              </li>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', color: 'var(--text-primary)', fontWeight: '600' }}>
-                <i className="fas fa-check-circle" style={{ color: 'var(--accent-color)' }}></i> Doctor Calendar Slots
-              </li>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', color: 'var(--text-primary)', fontWeight: '600' }}>
-                <i className="fas fa-check-circle" style={{ color: 'var(--accent-color)' }}></i> Dynamic Symptom Analysis
-              </li>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-primary)', fontWeight: '600' }}>
-                <i className="fas fa-check-circle" style={{ color: 'var(--accent-color)' }}></i> Live Consultations Chat
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Forms Panel Right */}
-        <div className="auth-forms" style={{ flex: 1, padding: '50px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          {!showOtpScreen ? (
-            <>
-              <div className="form-toggle" style={{ display: 'flex', gap: '15px', marginBottom: '30px' }}>
-                <button
-                  className={`toggle-btn ${isLoginMode ? 'active' : ''}`}
-                  onClick={() => setIsLoginMode(true)}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    borderRadius: '10px',
-                    border: 'none',
-                    fontSize: '15px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    background: isLoginMode ? 'var(--primary-gradient)' : 'rgba(0,0,0,0.05)',
-                    color: isLoginMode ? 'white' : 'var(--text-secondary)'
-                  }}
-                >
-                  Login
-                </button>
-                <button
-                  className={`toggle-btn ${!isLoginMode ? 'active' : ''}`}
-                  onClick={() => setIsLoginMode(false)}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    borderRadius: '10px',
-                    border: 'none',
-                    fontSize: '15px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    background: !isLoginMode ? 'var(--primary-gradient)' : 'rgba(0,0,0,0.05)',
-                    color: !isLoginMode ? 'white' : 'var(--text-secondary)'
-                  }}
-                >
-                  Register
-                </button>
+      <main style={{ paddingTop: '100px', minHeight: '85vh', background: 'var(--clr-gray-50)', display: 'flex', alignItems: 'center' }}>
+        <div className="container" style={{ paddingBottom: '3rem' }}>
+          
+          <div className="card card-lg" style={{
+            display: 'flex',
+            flexDirection: 'row',
+            width: '100%',
+            maxWidth: '1000px',
+            margin: '0 auto',
+            padding: 0,
+            overflow: 'hidden',
+            border: '1px solid var(--border-subtle)',
+            boxShadow: 'var(--shadow-xl)',
+            flexWrap: 'wrap'
+          }}>
+            {/* Branding Left Panel */}
+            <div style={{
+              flex: '1 1 450px',
+              background: 'linear-gradient(135deg, rgba(220, 53, 69, 0.03) 0%, rgba(0, 123, 255, 0.03) 100%)',
+              padding: '50px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              borderRight: '1px solid var(--border-subtle)'
+            }}>
+              <div>
+                <h1 className="gradient-text" style={{ fontSize: '2.4rem', fontWeight: 900, marginBottom: '1.2rem', letterSpacing: '-0.5px' }}>
+                  HealthMate
+                </h1>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '1rem', lineHeight: 1.6 }}>
+                  Access your unified hub to schedule consultations, log health trends, keep track of daily nutrition, and check medication safety checklists securely.
+                </p>
+                <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {[
+                    'HIPAA Compliant Encrypted Records',
+                    'Real-Time Doctor Bookings',
+                    'Personalized AI Health Coach',
+                    'Medication Safety Checklists'
+                  ].map((item, idx) => (
+                    <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '600', color: 'var(--clr-gray-800)', fontSize: '0.9rem' }}>
+                      <i className="fas fa-check-circle" style={{ color: 'var(--clr-green)' }} />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
+            </div>
 
-              {isLoginMode ? (
-                /* LOGIN FORM */
-                <form onSubmit={handleLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                  <h2 style={{ fontSize: '1.8rem', fontWeight: 800 }}>Welcome Back!</h2>
-                  
-                  <div className="input-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }}>
-                    <label>Email Address</label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email"
-                      required
-                      style={{ padding: '14px 20px', borderRadius: '12px', border: '1px solid var(--border-subtle)', background: 'white', outline: 'none' }}
-                    />
-                  </div>
-                  
-                  <div className="input-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }}>
-                    <label>Password</label>
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter your password"
-                      required
-                      style={{ padding: '14px 20px', borderRadius: '12px', border: '1px solid var(--border-subtle)', background: 'white', outline: 'none' }}
-                    />
+            {/* Forms Panel Right */}
+            <div style={{ flex: '1 1 450px', padding: '50px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: 'white' }}>
+              
+              {/* Form Errors Banner */}
+              {formErrors.length > 0 && (
+                <div className="alert alert-error" style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                  {formErrors.map((err, i) => (
+                    <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <i className="fas fa-exclamation-circle" style={{ fontSize: '0.85rem' }} />
+                      <span>{err}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {!showOtpScreen ? (
+                <>
+                  <div className="form-toggle" style={{ display: 'flex', gap: '12px', marginBottom: '28px' }}>
+                    <button
+                      className="btn"
+                      onClick={() => setIsLoginMode(true)}
+                      style={{
+                        flex: 1,
+                        background: isLoginMode ? 'var(--grad-primary)' : 'var(--clr-gray-100)',
+                        color: isLoginMode ? 'white' : 'var(--text-secondary)',
+                        borderRadius: '12px'
+                      }}
+                    >
+                      Login
+                    </button>
+                    <button
+                      className="btn"
+                      onClick={() => setIsLoginMode(false)}
+                      style={{
+                        flex: 1,
+                        background: !isLoginMode ? 'var(--grad-primary)' : 'var(--clr-gray-100)',
+                        color: !isLoginMode ? 'white' : 'var(--text-secondary)',
+                        borderRadius: '12px'
+                      }}
+                    >
+                      Register
+                    </button>
                   </div>
 
-                  <button type="submit" className="btn btn-primary" style={{ padding: '14px', borderRadius: '12px', textTransform: 'uppercase', justifyContent: 'center' }}>
-                    Send Verification Code
-                  </button>
+                  {isLoginMode ? (
+                    /* LOGIN FORM */
+                    <form onSubmit={handleLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                      <h2 style={{ fontSize: '1.6rem', fontWeight: 800, margin: 0, color: 'var(--clr-gray-900)' }}>Welcome Back!</h2>
+                      
+                      <div className="form-group">
+                        <label className="form-label">Email Address</label>
+                        <input
+                          type="email"
+                          className="form-input"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="Enter your email"
+                          required
+                        />
+                      </div>
+                      
+                      <div className="form-group">
+                        <label className="form-label">Password</label>
+                        <input
+                          type="password"
+                          className="form-input"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="Enter your password"
+                          required
+                        />
+                      </div>
 
-                  <div style={{ textAlign: 'center' }}>
-                    <Link to="/forgot-password" style={{ color: 'var(--accent-color)', fontSize: '14px', textDecoration: 'none' }}>
-                      Forgot password?
-                    </Link>
-                  </div>
-                  
-                  <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                    <Link to="/doctor-login" style={{ color: 'var(--accent-blue)', fontSize: '14px', fontWeight: 'bold', textDecoration: 'none' }}>
-                      Doctor? Log in here <i className="fas fa-arrow-right"></i>
-                    </Link>
-                  </div>
-                </form>
+                      <button type="submit" className="btn btn-primary" style={{ borderRadius: '12px', padding: '14px' }}>
+                        Send Verification Code
+                      </button>
+
+                      <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                        <Link to="/forgot-password" style={{ color: 'var(--clr-primary)', fontSize: '0.85rem', textDecoration: 'none', fontWeight: 600 }}>
+                          Forgot password?
+                        </Link>
+                      </div>
+                      
+                      <div style={{ textAlign: 'center', marginTop: '12px', borderTop: '1px solid var(--border-subtle)', paddingTop: '16px' }}>
+                        <Link to="/doctor-login" style={{ color: 'var(--clr-blue)', fontSize: '0.85rem', fontWeight: 700, textDecoration: 'none' }}>
+                          Doctor Login Portal <i className="fas fa-arrow-right" style={{ marginLeft: '4px', fontSize: '0.75rem' }} />
+                        </Link>
+                      </div>
+                    </form>
+                  ) : (
+                    /* REGISTRATION FORM */
+                    <form onSubmit={handleRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      <h2 style={{ fontSize: '1.6rem', fontWeight: 800, margin: 0, color: 'var(--clr-gray-900)' }}>Create Patient Account</h2>
+                      
+                      <div className="form-group">
+                        <label className="form-label">Full Name</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="Enter your name"
+                          required
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">Email Address</label>
+                        <input
+                          type="email"
+                          className="form-input"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="Enter your email"
+                          required
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">Phone Number</label>
+                        <input
+                          type="tel"
+                          className="form-input"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          placeholder="Enter your phone"
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">Password</label>
+                        <input
+                          type="password"
+                          className="form-input"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="Create password (min 6 characters)"
+                          required
+                        />
+                      </div>
+
+                      <button type="submit" className="btn btn-primary" style={{ borderRadius: '12px', padding: '14px', marginTop: '8px' }}>
+                        Sign Up
+                      </button>
+                    </form>
+                  )}
+                </>
               ) : (
-                /* REGISTRATION FORM */
-                <form onSubmit={handleRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                  <h2 style={{ fontSize: '1.8rem', fontWeight: 800 }}>Create Patient Account</h2>
-                  
-                  <div className="input-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <label>Full Name</label>
+                /* OTP VERIFICATION SCREEN */
+                <form onSubmit={handleOtpSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  <h2 style={{ fontSize: '1.6rem', fontWeight: 800, margin: 0 }}>Enter Verification Code</h2>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.5 }}>
+                    We have sent a 6-digit verification code to <strong>{email}</strong>. Please check your inbox and enter it below to proceed.
+                  </p>
+
+                  <div className="form-group">
+                    <label className="form-label">Verification Code</label>
                     <input
                       type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Enter your name"
+                      className="form-input"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      placeholder="------"
+                      maxLength={6}
                       required
-                      style={{ padding: '12px 18px', borderRadius: '12px', border: '1px solid var(--border-subtle)', background: 'white' }}
+                      style={{ textAlign: 'center', letterSpacing: '8px', fontSize: '22px', fontWeight: 'bold' }}
                     />
                   </div>
 
-                  <div className="input-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <label>Email Address</label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email"
-                      required
-                      style={{ padding: '12px 18px', borderRadius: '12px', border: '1px solid var(--border-subtle)', background: 'white' }}
-                    />
-                  </div>
+                  <button type="submit" className="btn btn-primary" style={{ borderRadius: '12px', padding: '14px' }}>
+                    Verify & Login
+                  </button>
 
-                  <div className="input-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <label>Phone Number</label>
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="Enter your phone"
-                      style={{ padding: '12px 18px', borderRadius: '12px', border: '1px solid var(--border-subtle)', background: 'white' }}
-                    />
-                  </div>
-
-                  <div className="input-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <label>Password</label>
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Create password (min 6 characters)"
-                      required
-                      style={{ padding: '12px 18px', borderRadius: '12px', border: '1px solid var(--border-subtle)', background: 'white' }}
-                    />
-                  </div>
-
-                  <button type="submit" className="btn btn-primary" style={{ padding: '14px', borderRadius: '12px', textTransform: 'uppercase', justifyContent: 'center' }}>
-                    Sign Up
+                  <button
+                    type="button"
+                    onClick={() => setShowOtpScreen(false)}
+                    style={{ background: 'none', border: 'none', color: 'var(--clr-gray-600)', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}
+                  >
+                    Go back to credentials
                   </button>
                 </form>
               )}
-            </>
-          ) : (
-            /* OTP VERIFICATION SCREEN */
-            <form onSubmit={handleOtpSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <h2 style={{ fontSize: '1.8rem', fontWeight: 800 }}>Enter OTP Code</h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
-                We have sent a 6-digit verification code to <strong>{email}</strong>. Please enter the code below to log in.
-              </p>
-
-              <div className="input-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label>Verification Code</label>
-                <input
-                  type="text"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  placeholder="Enter 6-digit OTP"
-                  maxLength={6}
-                  required
-                  style={{ padding: '14px 20px', borderRadius: '12px', border: '1px solid var(--border-subtle)', textAlign: 'center', letterSpacing: '4px', fontSize: '20px', fontWeight: 'bold' }}
-                />
-              </div>
-
-              <button type="submit" className="btn btn-primary" style={{ padding: '14px', borderRadius: '12px', textTransform: 'uppercase', justifyContent: 'center' }}>
-                Verify & Login
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowOtpScreen(false)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', textDecoration: 'underline', cursor: 'pointer', fontSize: '14px' }}
-              >
-                Go back to credentials
-              </button>
-            </form>
-          )}
+            </div>
+          </div>
+          
         </div>
-      </div>
+      </main>
+
+      <Footer />
     </>
   );
 };

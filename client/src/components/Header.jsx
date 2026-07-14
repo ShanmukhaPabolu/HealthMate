@@ -40,29 +40,39 @@ const Header = () => {
   const isAdmin = user && user.role === 'admin';
   const isPatient = user && user.role === 'patient';
 
+  // Helper to determine if link is active
+  const isActive = (path) => location.pathname === path ? 'active' : '';
+
   return (
     <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
       <div className="container">
         <div className="header-content">
           <Link to="/" className="logo">
-            <i className="fas fa-heartbeat logo-icon"></i>
-            <span>{isDoctor ? 'DOCTOR PORTAL' : isAdmin ? 'ADMIN PORTAL' : 'HEALTH TRACKER'}</span>
+            <div className="logo-icon-box">
+              <i className="fas fa-heartbeat"></i>
+            </div>
+            <span className="logo-text">HealthMate</span>
+            {user && (
+              <span className={`logo-badge logo-badge-${user.role}`}>
+                {user.role}
+              </span>
+            )}
           </Link>
 
           <nav className={`nav ${isMobileMenuOpen ? 'nav-open' : ''}`}>
-            <Link to="/" className="nav-item">
+            <Link to="/" className={`nav-item ${isActive('/')}`}>
               <i className="fas fa-home"></i> Home
             </Link>
 
             {isPatient && (
               <>
-                <Link to="/dashboard" className="nav-item">
+                <Link to="/dashboard" className={`nav-item ${isActive('/dashboard')}`}>
                   <i className="fas fa-tachometer-alt"></i> Dashboard
                 </Link>
-                <Link to="/doctors" className="nav-item">
+                <Link to="/doctors" className={`nav-item ${isActive('/doctors')}`}>
                   <i className="fas fa-user-md"></i> Book Doctor
                 </Link>
-                <Link to="/reminders" className="nav-item">
+                <Link to="/reminders" className={`nav-item ${isActive('/reminders')}`}>
                   <i className="fas fa-bell"></i> Reminders
                 </Link>
               </>
@@ -70,10 +80,10 @@ const Header = () => {
 
             {isDoctor && (
               <>
-                <Link to="/doctor-dashboard" className="nav-item">
+                <Link to="/doctor-dashboard" className={`nav-item ${isActive('/doctor-dashboard')}`}>
                   <i className="fas fa-clipboard-list"></i> Appointments
                 </Link>
-                <Link to="/doctor-stats" className="nav-item">
+                <Link to="/doctor-stats" className={`nav-item ${isActive('/doctor-stats')}`}>
                   <i className="fas fa-chart-bar"></i> Analytics
                 </Link>
               </>
@@ -81,7 +91,7 @@ const Header = () => {
 
             {isAdmin && (
               <>
-                <Link to="/admin-dashboard" className="nav-item">
+                <Link to="/admin-dashboard" className={`nav-item ${isActive('/admin-dashboard')}`}>
                   <i className="fas fa-user-shield"></i> Administration
                 </Link>
               </>
@@ -95,7 +105,7 @@ const Header = () => {
                     height: '24px',
                     borderRadius: '50%',
                     background: 'white',
-                    color: 'var(--accent-color)',
+                    color: 'var(--clr-primary)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -105,15 +115,7 @@ const Header = () => {
                   </div>
                   <span>{user.name}</span>
                   {unreadCount > 0 && (
-                    <span style={{
-                      marginLeft: '6px',
-                      backgroundColor: 'white',
-                      color: 'var(--accent-color)',
-                      borderRadius: '50%',
-                      padding: '2px 6px',
-                      fontSize: '10px',
-                      fontWeight: 'bold'
-                    }}>{unreadCount}</span>
+                    <span className="notif-badge">{unreadCount}</span>
                   )}
                   <i className="fas fa-chevron-down" style={{ marginLeft: '6px', fontSize: '0.7rem' }}></i>
                 </button>

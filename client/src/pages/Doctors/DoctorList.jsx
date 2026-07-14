@@ -1,25 +1,26 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../../context/AuthContext';
 import { NotificationContext } from '../../context/NotificationContext';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import ParticlesBackground from '../../components/ParticlesBackground';
-import CustomCursor from '../../components/CustomCursor';
-import SirenEffectContainer from '../../components/SirenEffectContainer';
-import LoadingScreen from '../../components/LoadingScreen';
+import { SkeletonGrid } from '../../components/Skeleton';
+import EmptyState from '../../components/EmptyState';
 
 const DoctorList = () => {
   const { triggerToast } = useContext(NotificationContext);
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [sirenEvents, setSirenEvents] = useState([]);
   const [doctors, setDoctors] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Read initial specialization from URL search params
+  const initialSpecialization = searchParams.get('specialization') || '';
 
   // Search & Filter States
   const [search, setSearch] = useState('');
-  const [specialization, setSpecialization] = useState('');
+  const [specialization, setSpecialization] = useState(initialSpecialization);
   const [experience, setExperience] = useState('');
   const [rating, setRating] = useState('');
   const [feeMin, setFeeMin] = useState('');
@@ -27,6 +28,13 @@ const DoctorList = () => {
   const [gender, setGender] = useState('');
   const [location, setLocation] = useState('');
   const [sort, setSort] = useState('highest-rated');
+
+  // Update URL search parameters when filters change
+  useEffect(() => {
+    const params = {};
+    if (specialization) params.specialization = specialization;
+    setSearchParams(params);
+  }, [specialization, setSearchParams]);
 
   const fetchDoctors = async () => {
     setLoading(true);
@@ -58,97 +66,97 @@ const DoctorList = () => {
     fetchDoctors();
   }, [specialization, experience, rating, feeMin, feeMax, gender, location, sort]);
 
-  const handleSiren = (x, y) => {
-    const el = document.elementFromPoint(x, y);
-    if (el && (el.tagName === 'A' || el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.closest('.nav-item') || el.closest('.profile-btn') || el.closest('.doctor-card'))) return;
-    setSirenEvents(prev => [...prev, { x, y, id: Date.now() }]);
-  };
-
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     fetchDoctors();
   };
 
+  const handleClearFilters = () => {
+    setSearch('');
+    setSpecialization('');
+    setExperience('');
+    setRating('');
+    setFeeMin('');
+    setFeeMax('');
+    setGender('');
+    setLocation('');
+    setSort('highest-rated');
+  };
+
   return (
     <>
-      <div className="background-effects">
-        <div className="glow-orb glow-orb-1" style={{ background: 'radial-gradient(circle, var(--accent-blue) 0%, transparent 70%)' }}></div>
-        <div className="glow-orb glow-orb-2"></div>
-        <div className="glow-orb glow-orb-3"></div>
-      </div>
-      
-      <ParticlesBackground />
-      <CustomCursor onSiren={handleSiren} />
-      <SirenEffectContainer sirenEvents={sirenEvents} />
-      <LoadingScreen text="CONSULT SPECIALISTS" subtitle="Book appointments in real-time" />
-      
       <Header />
       
-      <main style={{ paddingTop: '120px', minHeight: '80vh' }}>
-        <div className="container">
-          <h1 style={{ fontSize: '2.2rem', fontWeight: 950, marginBottom: '40px' }}>Search Verified <span className="gradient-text">Medical Specialists</span></h1>
+      <main style={{ paddingTop: '100px', minHeight: '80vh', background: 'var(--clr-gray-50)' }}>
+        <div className="container" style={{ paddingBottom: '4rem' }}>
+          <div style={{ marginBottom: '32px' }}>
+            <h1 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '6px' }}>
+              Find a <span className="gradient-text">Doctor</span>
+            </h1>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+              Search, filter, and schedule appointments with top verified medical specialists.
+            </p>
+          </div>
 
           {/* Search Bar & Filter layout */}
-          <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '30px', alignItems: 'start' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '30px', alignItems: 'start' }}>
             
             {/* Left sidebar filters */}
-            <div style={{
-              backgroundColor: 'rgba(255,255,255,0.85)',
-              backdropFilter: 'blur(20px)',
-              borderRadius: '24px',
-              padding: '25px',
-              border: '1px solid var(--border-subtle)',
-              boxShadow: 'var(--shadow-lg)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '20px'
-            }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: '800', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '10px' }}>Filters</h3>
+            <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '20px', background: 'white' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '12px' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', margin: 0 }}>Filters</h3>
+                <button onClick={handleClearFilters} style={{ background: 'none', border: 'none', color: 'var(--clr-primary)', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer' }}>
+                  Clear All
+                </button>
+              </div>
               
-              <div className="input-group" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                <label style={{ fontSize: '13px', fontWeight: '600' }}>Specialization</label>
+              <div className="form-group">
+                <label className="form-label">Specialization</label>
                 <select
+                  className="form-select"
                   value={specialization}
                   onChange={(e) => setSpecialization(e.target.value)}
-                  style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-subtle)', background: 'white' }}
                 >
-                  <option value="">All Specialities</option>
-                  <option value="Cardiologist">Cardiologist</option>
-                  <option value="Dermatologist">Dermatologist</option>
-                  <option value="Pediatrician">Pediatrician</option>
-                  <option value="General Physician">General Physician</option>
-                  <option value="Neurologist">Neurologist</option>
+                  <option value="">All Specialties</option>
+                  <option value="General Medicine">General Medicine</option>
+                  <option value="Cardiology">Cardiology</option>
+                  <option value="Dermatology">Dermatology</option>
+                  <option value="Neurology">Neurology</option>
+                  <option value="Orthopedics">Orthopedics</option>
+                  <option value="Pediatrics">Pediatrics</option>
+                  <option value="Psychiatry">Psychiatry</option>
+                  <option value="Ophthalmology">Ophthalmology</option>
                 </select>
               </div>
 
-              <div className="input-group" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                <label style={{ fontSize: '13px', fontWeight: '600' }}>Location / City</label>
+              <div className="form-group">
+                <label className="form-label">Location / Hospital</label>
                 <input
                   type="text"
+                  className="form-input"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  placeholder="e.g. Los Angeles, NY"
-                  style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-subtle)', background: 'white' }}
+                  placeholder="e.g. City General"
                 />
               </div>
 
-              <div className="input-group" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                <label style={{ fontSize: '13px', fontWeight: '600' }}>Min Experience (Years)</label>
+              <div className="form-group">
+                <label className="form-label">Min Experience (Years)</label>
                 <input
                   type="number"
+                  className="form-input"
                   value={experience}
                   onChange={(e) => setExperience(e.target.value)}
                   placeholder="e.g. 5"
-                  style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}
                 />
               </div>
 
-              <div className="input-group" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                <label style={{ fontSize: '13px', fontWeight: '600' }}>Gender</label>
+              <div className="form-group">
+                <label className="form-label">Doctor Gender</label>
                 <select
+                  className="form-select"
                   value={gender}
                   onChange={(e) => setGender(e.target.value)}
-                  style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-subtle)', background: 'white' }}
                 >
                   <option value="">Any Gender</option>
                   <option value="Male">Male</option>
@@ -156,98 +164,89 @@ const DoctorList = () => {
                 </select>
               </div>
 
-              <div className="input-group" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                <label style={{ fontSize: '13px', fontWeight: '600' }}>Consultation Fee ($)</label>
-                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <div className="form-group">
+                <label className="form-label">Fee Range (₹)</label>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input
                     type="number"
+                    className="form-input"
                     value={feeMin}
                     onChange={(e) => setFeeMin(e.target.value)}
                     placeholder="Min"
-                    style={{ padding: '10px 12px', borderRadius: '10px', border: '1px solid var(--border-subtle)', width: '80px' }}
                   />
-                  <span>-</span>
+                  <span style={{ color: 'var(--text-muted)' }}>-</span>
                   <input
                     type="number"
+                    className="form-input"
                     value={feeMax}
                     onChange={(e) => setFeeMax(e.target.value)}
                     placeholder="Max"
-                    style={{ padding: '10px 12px', borderRadius: '10px', border: '1px solid var(--border-subtle)', width: '80px' }}
                   />
                 </div>
               </div>
 
-              <div className="input-group" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                <label style={{ fontSize: '13px', fontWeight: '600' }}>Sort By</label>
+              <div className="form-group">
+                <label className="form-label">Sort By</label>
                 <select
+                  className="form-select"
                   value={sort}
                   onChange={(e) => setSort(e.target.value)}
-                  style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-subtle)', background: 'white' }}
                 >
                   <option value="highest-rated">Highest Rated</option>
-                  <option value="popularity">Most Patients</option>
-                  <option value="lowest-fee">Lowest Fee</option>
-                  <option value="highest-fee">Highest Fee</option>
+                  <option value="popularity">Most Popular</option>
+                  <option value="lowest-fee">Fee: Low to High</option>
+                  <option value="highest-fee">Fee: High to Low</option>
                   <option value="most-experienced">Most Experienced</option>
+                  <option value="newest">Newly Registered</option>
                 </select>
               </div>
             </div>
 
-            {/* Right doctors grid list */}
-            <div>
-              {/* Search Submit */}
-              <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '12px', marginBottom: '30px' }}>
+            {/* Right List Panel */}
+            <div style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              
+              {/* Search Bar */}
+              <form onSubmit={handleSearchSubmit} className="card" style={{ display: 'flex', gap: '12px', padding: '16px', background: 'white' }}>
                 <input
                   type="text"
+                  className="form-input"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search Doctor name, hospital, clinic, or specialization..."
-                  style={{ flex: 1, padding: '14px 20px', borderRadius: '15px', border: '1px solid var(--border-subtle)', background: 'white', fontSize: '15px' }}
+                  placeholder="Search Doctor name, hospital, clinic, or keywords..."
+                  style={{ flex: 1 }}
                 />
-                <button type="submit" className="btn btn-primary" style={{ padding: '14px 30px', borderRadius: '15px' }}>
-                  Search
+                <button type="submit" className="btn btn-primary" style={{ padding: '12px 28px', borderRadius: '12px' }}>
+                  <i className="fas fa-search" /> Search
                 </button>
               </form>
 
               {loading ? (
-                <div style={{ textAlign: 'center', padding: '60px 0' }}>
-                  <i className="fas fa-heartbeat fa-spin" style={{ fontSize: '3rem', color: 'var(--accent-color)', marginBottom: '15px' }}></i>
-                  <p>Searching verified profiles...</p>
-                </div>
+                <SkeletonGrid cards={6} />
               ) : doctors.length === 0 ? (
-                <div style={{
-                  textAlign: 'center',
-                  padding: '80px 0',
-                  backgroundColor: 'rgba(255,255,255,0.7)',
-                  borderRadius: '24px',
-                  border: '1px solid var(--border-subtle)'
-                }}>
-                  <i className="fas fa-user-md-slash" style={{ fontSize: '4rem', color: 'var(--text-muted)', marginBottom: '20px' }}></i>
-                  <h3 style={{ fontSize: '1.5rem', marginBottom: '10px' }}>No Doctors Found</h3>
-                  <p style={{ color: 'var(--text-secondary)' }}>Try modifying your filters or search keywords.</p>
-                </div>
+                <EmptyState
+                  icon="fas fa-user-md-slash"
+                  title="No Doctors Found"
+                  description="We couldn't find any verified specialists matching your criteria. Try adjusting your filters."
+                  actionText="Clear All Filters"
+                  onActionClick={handleClearFilters}
+                />
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '25px' }}>
+                <div className="grid-auto">
                   {doctors.map((doc) => (
                     <div
                       key={doc._id}
-                      className="doctor-card"
+                      className="card card-hover"
                       onClick={() => navigate(`/doctor/${doc._id}`)}
                       style={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.85)',
-                        border: '1px solid var(--border-subtle)',
-                        borderRadius: '20px',
-                        padding: '25px',
                         cursor: 'pointer',
-                        transition: 'all 0.3s ease',
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: '15px',
-                        boxShadow: '0 10px 20px rgba(0,0,0,0.02)'
+                        gap: '16px',
+                        background: 'white'
                       }}
                     >
                       <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                        <div style={{ width: '65px', height: '65px', borderRadius: '50%', overflow: 'hidden', background: '#e9ecef', flexShrink: 0 }}>
+                        <div style={{ width: '60px', height: '60px', borderRadius: '50%', overflow: 'hidden', background: 'var(--clr-gray-100)', flexShrink: 0 }}>
                           <img
                             src={doc.profilePhoto || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150&q=80'}
                             alt={doc.user?.name}
@@ -255,26 +254,42 @@ const DoctorList = () => {
                           />
                         </div>
                         <div>
-                          <h4 style={{ fontSize: '1.1rem', fontWeight: '800' }}>Dr. {doc.user?.name}</h4>
-                          <span style={{ fontSize: '13px', color: 'var(--accent-color)', fontWeight: 'bold' }}>{doc.specialization}</span>
+                          <h4 style={{ fontSize: '1rem', fontWeight: 800, margin: 0, color: 'var(--clr-gray-900)' }}>
+                            Dr. {doc.user?.name}
+                          </h4>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--clr-primary)', fontWeight: 700 }}>
+                            {doc.specialization}
+                          </span>
                         </div>
                       </div>
 
-                      <div style={{ fontSize: '13.5px', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        <span><i className="fas fa-graduation-cap" style={{ width: '20px' }}></i> {doc.qualification}</span>
-                        <span><i className="fas fa-briefcase" style={{ width: '20px' }}></i> {doc.experience} Years Experience</span>
-                        <span><i className="fas fa-hospital" style={{ width: '20px' }}></i> {doc.hospital}</span>
-                        <span><i className="fas fa-wallet" style={{ width: '20px' }}></i> <strong>${doc.consultationFee}</strong> Consultation Fee</span>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <i className="fas fa-graduation-cap" style={{ width: '18px', color: 'var(--text-muted)' }} />
+                          <span>{doc.qualification}</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <i className="fas fa-briefcase" style={{ width: '18px', color: 'var(--text-muted)' }} />
+                          <span>{doc.experience} Years Experience</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <i className="fas fa-hospital" style={{ width: '18px', color: 'var(--text-muted)' }} />
+                          <span>{doc.hospital}</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <i className="fas fa-wallet" style={{ width: '18px', color: 'var(--text-muted)' }} />
+                          <span>Consultation fee: <strong style={{ color: 'var(--clr-gray-900)' }}>₹{doc.consultationFee}</strong></span>
+                        </div>
                       </div>
 
-                      <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13.5px', fontWeight: 'bold', color: 'var(--text-primary)' }}>
-                          <i className="fas fa-star" style={{ color: '#FFC107' }}></i>
-                          <span>{doc.ratings} ({doc.reviewsCount} Reviews)</span>
+                      <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', fontWeight: 700 }}>
+                          <i className="fas fa-star" style={{ color: 'var(--clr-yellow)' }} />
+                          <span>{doc.ratings.toFixed(1)} <span style={{ color: 'var(--text-muted)', fontWeight: 500 }}>({doc.reviewsCount} reviews)</span></span>
                         </div>
                         {doc.isVerified && (
-                          <span style={{ fontSize: '11px', background: 'rgba(40,167,69,0.1)', color: 'var(--accent-green)', padding: '3px 8px', borderRadius: '50px', fontWeight: 'bold' }}>
-                            <i className="fas fa-check-circle"></i> VERIFIED
+                          <span className="badge badge-success">
+                            <i className="fas fa-check-circle" /> VERIFIED
                           </span>
                         )}
                       </div>

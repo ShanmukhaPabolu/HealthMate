@@ -3,27 +3,16 @@ import { api } from '../../context/AuthContext';
 import { NotificationContext } from '../../context/NotificationContext';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import ParticlesBackground from '../../components/ParticlesBackground';
-import CustomCursor from '../../components/CustomCursor';
-import SirenEffectContainer from '../../components/SirenEffectContainer';
-import LoadingScreen from '../../components/LoadingScreen';
 
 const AICoach = () => {
   const { triggerToast } = useContext(NotificationContext);
-  const [sirenEvents, setSirenEvents] = useState([]);
   const [messages, setMessages] = useState([
-    { sender: 'ai', text: 'Hello! I am your Health Tracker AI Coach. Ask me anything about diet plans, workouts, or chronic symptom logs!' }
+    { sender: 'ai', text: 'Hello! I am your Health Tracker AI Coach (Sandbox Simulation Mode). Feel free to ask me about diet planning, physical training, workout schedules, or symptom analysis!' }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   
   const messagesEndRef = useRef(null);
-
-  const handleSiren = (x, y) => {
-    const el = document.elementFromPoint(x, y);
-    if (el && (el.tagName === 'A' || el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.closest('.nav-item') || el.closest('.profile-btn'))) return;
-    setSirenEvents(prev => [...prev, { x, y, id: Date.now() }]);
-  };
 
   // Scroll to bottom of chat
   const scrollToBottom = () => {
@@ -58,32 +47,25 @@ const AICoach = () => {
 
   return (
     <>
-      <div className="background-effects">
-        <div className="glow-orb glow-orb-1" style={{ background: 'radial-gradient(circle, var(--accent-blue) 0%, transparent 70%)' }}></div>
-        <div className="glow-orb glow-orb-2"></div>
-        <div className="glow-orb glow-orb-3"></div>
-      </div>
-      
-      <ParticlesBackground />
-      <CustomCursor onSiren={handleSiren} />
-      <SirenEffectContainer sirenEvents={sirenEvents} />
-      <LoadingScreen text="HEALTH AI COACH" subtitle="Personalized fitness guidance" />
-      
       <Header />
       
-      <main style={{ paddingTop: '120px', minHeight: '85vh' }}>
-        <div className="container" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 220px)', minHeight: '500px', maxWidth: '800px' }}>
-          <h1 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '20px', textAlign: 'center' }}>Health AI <span className="gradient-text">Coach</span></h1>
+      <main style={{ paddingTop: '100px', minHeight: '85vh', background: 'var(--clr-gray-50)' }}>
+        <div className="container" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 200px)', minHeight: '550px', maxWidth: '800px', paddingBottom: '2rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <h1 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '6px' }}>Health AI <span className="gradient-text">Coach</span></h1>
+            <span className="badge badge-primary">
+              <i className="fas fa-flask" /> Sandbox Simulation Mode
+            </span>
+          </div>
 
           <div style={{
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
-            backgroundColor: 'rgba(255,255,255,0.85)',
-            backdropFilter: 'blur(20px)',
+            backgroundColor: 'white',
             borderRadius: '24px',
             border: '1px solid var(--border-subtle)',
-            boxShadow: 'var(--shadow-xl)',
+            boxShadow: 'var(--shadow-md)',
             overflow: 'hidden'
           }}>
             {/* Messages Display */}
@@ -100,12 +82,12 @@ const AICoach = () => {
                       borderRadius: '16px',
                       borderBottomLeftRadius: isAi ? '0' : '16px',
                       borderBottomRightRadius: isAi ? '16px' : '0',
-                      background: isAi ? 'rgba(0,123,255,0.1)' : 'var(--primary-gradient)',
-                      color: isAi ? 'var(--text-primary)' : 'white',
-                      fontWeight: '500',
-                      fontSize: '14.5px',
+                      background: isAi ? 'var(--clr-gray-100)' : 'var(--grad-primary)',
+                      color: isAi ? 'var(--clr-gray-900)' : 'white',
+                      fontWeight: '600',
+                      fontSize: '14px',
                       lineHeight: 1.5,
-                      boxShadow: '0 4px 10px rgba(0,0,0,0.05)'
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
                     }}
                   >
                     {msg.text}
@@ -113,9 +95,9 @@ const AICoach = () => {
                 );
               })}
               {loading && (
-                <div style={{ alignSelf: 'flex-start', padding: '12px 18px', borderRadius: '16px', borderBottomLeftRadius: '0', background: 'rgba(0,123,255,0.05)', color: 'var(--text-secondary)', display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--accent-blue)' }}></i>
-                  <span>AI Coach is typing...</span>
+                <div style={{ alignSelf: 'flex-start', padding: '12px 18px', borderRadius: '16px', borderBottomLeftRadius: '0', background: 'var(--clr-gray-100)', color: 'var(--clr-gray-600)', display: 'flex', gap: '8px', alignItems: 'center', fontSize: '14px', fontWeight: 600 }}>
+                  <i className="fas fa-circle-notch fa-spin" style={{ color: 'var(--clr-primary)' }}></i>
+                  <span>AI Coach is compiling response...</span>
                 </div>
               )}
               <div ref={messagesEndRef} />
@@ -127,27 +109,24 @@ const AICoach = () => {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask me about calories target, symptoms checks, or hydration levels..."
-                style={{ flex: 1, border: 'none', outline: 'none', padding: '12px 15px', fontSize: '14.5px' }}
+                placeholder="Ask about diet planning, symptom checks, weight targets..."
+                style={{ flex: 1, border: 'none', outline: 'none', padding: '12px 15px', fontSize: '14.5px', fontFamily: 'inherit' }}
               />
               <button
                 type="submit"
+                className="btn btn-primary"
                 style={{
-                  background: 'var(--primary-gradient)',
-                  border: 'none',
-                  color: 'white',
                   width: '45px',
                   height: '45px',
                   borderRadius: '50%',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 4px 10px rgba(220, 53, 69, 0.2)'
+                  padding: 0,
+                  flexShrink: 0
                 }}
               >
-                <i className="fas fa-paper-plane"></i>
+                <i className="fas fa-paper-plane" style={{ fontSize: '0.9rem' }}></i>
               </button>
             </form>
           </div>

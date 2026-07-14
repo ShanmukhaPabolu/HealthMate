@@ -379,11 +379,48 @@ exports.analyzeDrugs = async (req, res, next) => {
     const alternatives = [];
 
     if (drugs && drugs.length > 1) {
-      const lowerDrugs = drugs.map(d => d.toLowerCase());
+      const lowerDrugs = drugs.map(d => d.trim().toLowerCase());
+      
+      // Rule 1: Aspirin + Warfarin
       if (lowerDrugs.includes('aspirin') && lowerDrugs.includes('warfarin')) {
         interactions.push("Aspirin + Warfarin: High risk of internal bleeding.");
-        risks.push("Co-administration leads to increased anticoagulant effects.");
-        alternatives.push("Use acetaminophen for mild pain control instead of aspirin under medical guidance.");
+        risks.push("Co-administration leads to synergy in blood-thinning effects, risking major hemorrhage.");
+        alternatives.push("Manage pain with acetaminophen (paracetamol) under supervision.");
+      }
+
+      // Rule 2: Ibuprofen + Aspirin
+      if (lowerDrugs.includes('ibuprofen') && lowerDrugs.includes('aspirin')) {
+        interactions.push("Ibuprofen + Aspirin: Reduced cardioprotective efficacy / increased GI risk.");
+        risks.push("Ibuprofen can block the antiplatelet effect of low-dose aspirin, increasing stroke/heart attack hazard.");
+        alternatives.push("Space administration by taking aspirin 2 hours before ibuprofen, or consult a cardiologist.");
+      }
+
+      // Rule 3: Sildenafil + Nitroglycerin
+      if ((lowerDrugs.includes('sildenafil') || lowerDrugs.includes('viagra')) && (lowerDrugs.includes('nitroglycerin') || lowerDrugs.includes('nitro'))) {
+        interactions.push("Sildenafil + Nitroglycerin: Severe, potentially fatal hypotension (low blood pressure).");
+        risks.push("Nitrates dilate blood vessels; combining with PDE5 inhibitors causes drastic blood pressure drops.");
+        alternatives.push("Absolutely contra-indicated. Do not use nitrates within 24-48 hours of PDE5 inhibitors.");
+      }
+
+      // Rule 4: Lisinopril + Potassium
+      if (lowerDrugs.includes('lisinopril') && (lowerDrugs.includes('potassium') || lowerDrugs.includes('k-dur'))) {
+        interactions.push("Lisinopril + Potassium: Risk of severe hyperkalemia.");
+        risks.push("ACE inhibitors reduce potassium excretion. Supplemental potassium raises blood potassium levels to dangerous levels.");
+        alternatives.push("Avoid potassium supplements or salt substitutes containing potassium without monitoring.");
+      }
+
+      // Rule 5: Simvastatin + Grapefruit Juice
+      if (lowerDrugs.includes('simvastatin') && (lowerDrugs.includes('grapefruit') || lowerDrugs.includes('grapefruit juice'))) {
+        interactions.push("Simvastatin + Grapefruit Juice: Risk of statin toxicity.");
+        risks.push("Grapefruit inhibits CYP3A4 enzymes, increasing simvastatin concentration and risking muscle damage (rhabdomyolysis).");
+        alternatives.push("Avoid consuming grapefruit products while taking Simvastatin. Ask about alternative statins (e.g., Rosuvastatin).");
+      }
+
+      // Rule 6: Xanax + Alcohol
+      if ((lowerDrugs.includes('xanax') || lowerDrugs.includes('alprazolam')) && (lowerDrugs.includes('alcohol') || lowerDrugs.includes('ethanol') || lowerDrugs.includes('beer') || lowerDrugs.includes('wine'))) {
+        interactions.push("Alprazolam (Xanax) + Alcohol: Extreme CNS and respiratory depression.");
+        risks.push("Synergistic sedative effects can lead to severe drowsiness, loss of motor control, breathing arrest, or coma.");
+        alternatives.push("Strictly avoid alcohol consumption while taking any benzodiazepine medications.");
       }
     }
 
