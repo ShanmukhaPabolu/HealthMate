@@ -6,17 +6,11 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import Security from '../../components/Security';
 import HealthCategories from '../../components/HealthCategories';
-import ParticlesBackground from '../../components/ParticlesBackground';
-import CustomCursor from '../../components/CustomCursor';
-import SirenEffectContainer from '../../components/SirenEffectContainer';
-import LoadingScreen from '../../components/LoadingScreen';
 import io from 'socket.io-client';
 
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
   const { triggerToast } = useContext(NotificationContext);
-  const [sirenEvents, setSirenEvents] = useState([]);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const navigate = useNavigate();
 
   // Appointments, Chat, and Video states
@@ -27,20 +21,6 @@ const Dashboard = () => {
   const [socket, setSocket] = useState(null);
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [localStream, setLocalStream] = useState(null);
-
-  const handleSiren = useCallback((x, y) => {
-    const el = document.elementFromPoint(x, y);
-    if (el && (el.tagName === 'A' || el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.closest('.nav-item') || el.closest('.btn') || el.closest('.profile-btn') || el.closest('.dropdown-item') || el.closest('.chat-box') || el.closest('.modal-overlay'))) return;
-    setSirenEvents(prev => [...prev, { x, y, id: Date.now() }]);
-  }, []);
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
 
   const fetchAppointments = async () => {
     try {
@@ -240,11 +220,7 @@ const Dashboard = () => {
         <div className="glow-orb glow-orb-3"></div>
       </div>
       
-      <ParticlesBackground />
-      <CustomCursor onSiren={handleSiren} />
-      <SirenEffectContainer sirenEvents={sirenEvents} />
-      <LoadingScreen text="PATIENT DASHBOARD" subtitle="Access your personal wellness logs" />
-      
+                              
       <Header />
       
       <main>

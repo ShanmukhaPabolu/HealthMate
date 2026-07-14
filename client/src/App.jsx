@@ -5,6 +5,7 @@ import { NotificationProvider } from './context/NotificationContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import NotFound from './pages/NotFound';
+import Layout from './components/Layout';
 
 // Pages Import
 import Home from './pages/Home/Home';
@@ -40,96 +41,103 @@ function App() {
         <AuthProvider>
           <NotificationProvider>
             <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/doctor-login" element={<DoctorLogin />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/admin-login" element={<AdminLogin />} />
+              <Route element={<Layout />}>
+                {/* Public Routes */}
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/doctor-login" element={<DoctorLogin />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/admin-login" element={<AdminLogin />} />
 
-              {/* Doctor browsing — PUBLIC (no login required) */}
-              <Route path="/doctors" element={<DoctorList />} />
-              <Route path="/doctor/:id" element={<DoctorDetails />} />
+                {/* Doctor browsing — PUBLIC (no login required) */}
+                <Route path="/doctors" element={<DoctorList />} />
+                <Route path="/doctor/:id" element={<DoctorDetails />} />
 
-              {/* Patient Protected Routes */}
-              <Route path="/dashboard" element={
-                <ProtectedRoute allowedRoles={['patient']}>
-                  <Dashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/profile" element={
-                <ProtectedRoute allowedRoles={['patient']}>
-                  <Profile />
-                </ProtectedRoute>
-              } />
-              <Route path="/diet" element={
-                <ProtectedRoute allowedRoles={['patient']}>
-                  <DietTracker />
-                </ProtectedRoute>
-              } />
-              <Route path="/reminders" element={
-                <ProtectedRoute allowedRoles={['patient']}>
-                  <Reminders />
-                </ProtectedRoute>
-              } />
-              <Route path="/stats" element={
-                <ProtectedRoute allowedRoles={['patient']}>
-                  <Stats />
-                </ProtectedRoute>
-              } />
-              <Route path="/symptoms" element={
-                <ProtectedRoute allowedRoles={['patient']}>
-                  <SymptomTracker />
-                </ProtectedRoute>
-              } />
-              <Route path="/trends" element={
-                <ProtectedRoute allowedRoles={['patient']}>
-                  <HealthTrends />
-                </ProtectedRoute>
-              } />
-              <Route path="/ai-coach" element={
-                <ProtectedRoute allowedRoles={['patient']}>
-                  <AICoach />
-                </ProtectedRoute>
-              } />
-              <Route path="/drug-checker" element={
-                <ProtectedRoute allowedRoles={['patient']}>
-                  <DrugChecker />
-                </ProtectedRoute>
-              } />
+                {/* Patient Protected Routes */}
+                <Route path="/dashboard" element={
+                  <ProtectedRoute allowedRoles={['patient']}>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/profile" element={
+                  <ProtectedRoute allowedRoles={['patient']}>
+                    <Profile />
+                  </ProtectedRoute>
+                } />
+                <Route path="/diet" element={
+                  <ProtectedRoute allowedRoles={['patient']}>
+                    <DietTracker />
+                  </ProtectedRoute>
+                } />
+                <Route path="/reminders" element={
+                  <ProtectedRoute allowedRoles={['patient']}>
+                    <Reminders />
+                  </ProtectedRoute>
+                } />
+                <Route path="/stats" element={
+                  <ProtectedRoute allowedRoles={['patient']}>
+                    <Stats />
+                  </ProtectedRoute>
+                } />
+                <Route path="/symptoms" element={
+                  <ProtectedRoute allowedRoles={['patient']}>
+                    <SymptomTracker />
+                  </ProtectedRoute>
+                } />
+                <Route path="/trends" element={
+                  <ProtectedRoute allowedRoles={['patient']}>
+                    <HealthTrends />
+                  </ProtectedRoute>
+                } />
+                <Route path="/ai-coach" element={
+                  <ProtectedRoute allowedRoles={['patient']}>
+                    <AICoach />
+                  </ProtectedRoute>
+                } />
+                <Route path="/drug-checker" element={
+                  <ProtectedRoute allowedRoles={['patient']}>
+                    <DrugChecker />
+                  </ProtectedRoute>
+                } />
 
-              {/* Doctor Portal Routes */}
-              <Route path="/doctor-dashboard" element={
-                <ProtectedRoute allowedRoles={['doctor']}>
-                  <DoctorDashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/doctor-stats" element={
-                <ProtectedRoute allowedRoles={['doctor']}>
-                  <DoctorStats />
-                </ProtectedRoute>
-              } />
-              <Route path="/doctor-records" element={
-                <ProtectedRoute allowedRoles={['doctor']}>
-                  <DoctorRecords />
-                </ProtectedRoute>
-              } />
-              <Route path="/doctor-analyzer" element={
-                <ProtectedRoute allowedRoles={['doctor']}>
-                  <DoctorAnalyzer />
-                </ProtectedRoute>
-              } />
+                {/* Doctor Portal Routes */}
+                <Route path="/doctor-dashboard" element={
+                  <ProtectedRoute allowedRoles={['doctor']}>
+                    <DoctorDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/doctor-stats" element={
+                  <ProtectedRoute allowedRoles={['doctor']}>
+                    <DoctorStats />
+                  </ProtectedRoute>
+                } />
+                <Route path="/doctor-records" element={
+                  <ProtectedRoute allowedRoles={['doctor']}>
+                    <DoctorRecords />
+                  </ProtectedRoute>
+                } />
+                <Route path="/doctor-page-or-analyzer" element={
+                  <ProtectedRoute allowedRoles={['doctor']}>
+                    <DoctorAnalyzer />
+                  </ProtectedRoute>
+                } />
+                <Route path="/doctor-analyzer" element={
+                  <ProtectedRoute allowedRoles={['doctor']}>
+                    <DoctorAnalyzer />
+                  </ProtectedRoute>
+                } />
 
-              {/* Admin Portal Routes */}
-              <Route path="/admin-dashboard" element={
-                <ProtectedRoute allowedRoles={['admin']}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              } />
+                {/* Admin Portal Routes */}
+                <Route path="/admin-dashboard" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } />
 
-              {/* 404 — catch all unmatched routes */}
-              <Route path="/404" element={<NotFound />} />
-              <Route path="*" element={<Navigate to="/404" replace />} />
+                {/* 404 — catch all unmatched routes */}
+                <Route path="/404" element={<NotFound />} />
+                <Route path="*" element={<Navigate to="/404" replace />} />
+              </Route>
             </Routes>
           </NotificationProvider>
         </AuthProvider>

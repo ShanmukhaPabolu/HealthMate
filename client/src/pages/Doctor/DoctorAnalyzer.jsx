@@ -1,22 +1,12 @@
 import React, { useState } from 'react';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import ParticlesBackground from '../../components/ParticlesBackground';
-import CustomCursor from '../../components/CustomCursor';
-import SirenEffectContainer from '../../components/SirenEffectContainer';
-import LoadingScreen from '../../components/LoadingScreen';
 
 const DoctorAnalyzer = () => {
-  const [sirenEvents, setSirenEvents] = useState([]);
-  const [inputText, setInputText] = useState('');
+    const [inputText, setInputText] = useState('');
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSiren = (x, y) => {
-    const el = document.elementFromPoint(x, y);
-    if (el && (el.tagName === 'A' || el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.closest('.nav-item') || el.closest('.profile-btn'))) return;
-    setSirenEvents(prev => [...prev, { x, y, id: Date.now() }]);
-  };
 
   const handleAnalyze = (e) => {
     e.preventDefault();
@@ -48,11 +38,7 @@ const DoctorAnalyzer = () => {
         <div className="glow-orb glow-orb-3"></div>
       </div>
       
-      <ParticlesBackground />
-      <CustomCursor onSiren={handleSiren} />
-      <SirenEffectContainer sirenEvents={sirenEvents} />
-      <LoadingScreen text="CLINICAL ANALYZER" subtitle="Diagnostic decision support tool" />
-      
+                              
       <Header />
       
       <main style={{ paddingTop: '120px', minHeight: '80vh' }}>

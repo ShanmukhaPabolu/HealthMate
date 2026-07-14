@@ -1,26 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import ParticlesBackground from '../../components/ParticlesBackground';
-import CustomCursor from '../../components/CustomCursor';
-import SirenEffectContainer from '../../components/SirenEffectContainer';
-import LoadingScreen from '../../components/LoadingScreen';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
-  const [sirenEvents, setSirenEvents] = useState([]);
-  const [showResetForm, setShowResetForm] = useState(false);
+    const [showResetForm, setShowResetForm] = useState(false);
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  const handleSiren = (x, y) => {
-    const el = document.elementFromPoint(x, y);
-    if (el && (el.tagName === 'A' || el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.closest('.back-home'))) return;
-    setSirenEvents(prev => [...prev, { x, y, id: Date.now() }]);
-  };
 
   // Step 1: Send Reset OTP
   const handleEmailSubmit = async (e) => {
@@ -64,11 +54,7 @@ const ForgotPassword = () => {
         <div className="glow-orb glow-orb-3"></div>
       </div>
       
-      <ParticlesBackground />
-      <CustomCursor onSiren={handleSiren} />
-      <SirenEffectContainer sirenEvents={sirenEvents} />
-      <LoadingScreen text="PASSWORD RESET" subtitle="Recover your account credentials" />
-
+                        
       <Link to="/login" className="back-home" style={{
         position: 'fixed',
         top: '30px',

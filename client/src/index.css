@@ -129,8 +129,7 @@
   box-sizing: border-box;
 }
 
-/* Only hide native cursor when CustomCursor is mounted */
-.custom-cursor-active * { cursor: none !important; }
+/* Reset & Base */
 
 html { scroll-behavior: smooth; font-size: 16px; }
 

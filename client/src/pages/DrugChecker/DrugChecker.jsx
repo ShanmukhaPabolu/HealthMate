@@ -3,26 +3,16 @@ import { api } from '../../context/AuthContext';
 import { NotificationContext } from '../../context/NotificationContext';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import ParticlesBackground from '../../components/ParticlesBackground';
-import CustomCursor from '../../components/CustomCursor';
-import SirenEffectContainer from '../../components/SirenEffectContainer';
-import LoadingScreen from '../../components/LoadingScreen';
 
 const DrugChecker = () => {
   const { triggerToast } = useContext(NotificationContext);
-  const [sirenEvents, setSirenEvents] = useState([]);
-
+  
   // Drugs fields
   const [drugInput, setDrugInput] = useState('');
   const [selectedDrugs, setSelectedDrugs] = useState([]);
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSiren = (x, y) => {
-    const el = document.elementFromPoint(x, y);
-    if (el && (el.tagName === 'A' || el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.closest('.nav-item') || el.closest('.profile-btn'))) return;
-    setSirenEvents(prev => [...prev, { x, y, id: Date.now() }]);
-  };
 
   const handleAddDrug = (e) => {
     e.preventDefault();
@@ -61,11 +51,7 @@ const DrugChecker = () => {
         <div className="glow-orb glow-orb-3"></div>
       </div>
       
-      <ParticlesBackground />
-      <CustomCursor onSiren={handleSiren} />
-      <SirenEffectContainer sirenEvents={sirenEvents} />
-      <LoadingScreen text="DRUG CHECKER" subtitle="Cross-check safety interactions" />
-      
+                              
       <Header />
       
       <main style={{ paddingTop: '120px', minHeight: '80vh' }}>

@@ -4,16 +4,11 @@ import { api } from '../../context/AuthContext';
 import { NotificationContext } from '../../context/NotificationContext';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import ParticlesBackground from '../../components/ParticlesBackground';
-import CustomCursor from '../../components/CustomCursor';
-import SirenEffectContainer from '../../components/SirenEffectContainer';
-import LoadingScreen from '../../components/LoadingScreen';
 
 const SymptomTracker = () => {
   const { triggerToast } = useContext(NotificationContext);
   const navigate = useNavigate();
-  const [sirenEvents, setSirenEvents] = useState([]);
-
+  
   // Form states
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
   const [severity, setSeverity] = useState(5);
@@ -37,11 +32,6 @@ const SymptomTracker = () => {
     'Stomach Pain'
   ];
 
-  const handleSiren = (x, y) => {
-    const el = document.elementFromPoint(x, y);
-    if (el && (el.tagName === 'A' || el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.closest('.nav-item') || el.closest('.profile-btn') || el.closest('.recommendation-modal'))) return;
-    setSirenEvents(prev => [...prev, { x, y, id: Date.now() }]);
-  };
 
   const handleSymptomToggle = (symptom) => {
     if (selectedSymptoms.includes(symptom)) {
@@ -113,11 +103,7 @@ const SymptomTracker = () => {
         <div className="glow-orb glow-orb-3"></div>
       </div>
       
-      <ParticlesBackground />
-      <CustomCursor onSiren={handleSiren} />
-      <SirenEffectContainer sirenEvents={sirenEvents} />
-      <LoadingScreen text="SYMPTOMS LOGS" subtitle="Record daily physical indicators" />
-      
+                              
       <Header />
       
       <main style={{ paddingTop: '120px', minHeight: '80vh' }}>

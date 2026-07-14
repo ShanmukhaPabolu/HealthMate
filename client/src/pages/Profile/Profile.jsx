@@ -4,18 +4,13 @@ import { AuthContext, api } from '../../context/AuthContext';
 import { NotificationContext } from '../../context/NotificationContext';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import ParticlesBackground from '../../components/ParticlesBackground';
-import CustomCursor from '../../components/CustomCursor';
-import SirenEffectContainer from '../../components/SirenEffectContainer';
-import LoadingScreen from '../../components/LoadingScreen';
 
 const Profile = () => {
   const { user, setUser } = useContext(AuthContext);
   const { triggerToast } = useContext(NotificationContext);
   const navigate = useNavigate();
 
-  const [sirenEvents, setSirenEvents] = useState([]);
-  const [activeTab, setActiveTab] = useState('personal');
+    const [activeTab, setActiveTab] = useState('personal');
 
   // Form states
   const [name, setName] = useState('');
@@ -139,11 +134,6 @@ const Profile = () => {
     fetchProfile();
   }, []);
 
-  const handleSiren = (x, y) => {
-    const el = document.elementFromPoint(x, y);
-    if (el && (el.tagName === 'A' || el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.closest('.tab-btn') || el.closest('.nav-item') || el.closest('.profile-btn') || el.closest('.ehr-form'))) return;
-    setSirenEvents(prev => [...prev, { x, y, id: Date.now() }]);
-  };
 
   // EHR log additions
   const handleAddVaccine = async (e) => {
@@ -274,11 +264,7 @@ const Profile = () => {
         <div className="glow-orb glow-orb-3"></div>
       </div>
       
-      <ParticlesBackground />
-      <CustomCursor onSiren={handleSiren} />
-      <SirenEffectContainer sirenEvents={sirenEvents} />
-      <LoadingScreen text="PROFILE MANAGEMENT" subtitle="Configure health profile metrics" />
-      
+                              
       <Header />
       
       <main style={{ paddingTop: '120px', minHeight: '80vh' }}>

@@ -4,9 +4,6 @@ import { api } from '../../context/AuthContext';
 import { NotificationContext } from '../../context/NotificationContext';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import ParticlesBackground from '../../components/ParticlesBackground';
-import CustomCursor from '../../components/CustomCursor';
-import SirenEffectContainer from '../../components/SirenEffectContainer';
 import LoadingScreen from '../../components/LoadingScreen';
 
 const DoctorDetails = () => {
@@ -14,8 +11,7 @@ const DoctorDetails = () => {
   const navigate = useNavigate();
   const { triggerToast } = useContext(NotificationContext);
 
-  const [sirenEvents, setSirenEvents] = useState([]);
-  const [doctor, setDoctor] = useState(null);
+    const [doctor, setDoctor] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Booking states
@@ -81,11 +77,6 @@ const DoctorDetails = () => {
     fetchDoctorDetails();
   }, [id]);
 
-  const handleSiren = (x, y) => {
-    const el = document.elementFromPoint(x, y);
-    if (el && (el.tagName === 'A' || el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.closest('.nav-item') || el.closest('.profile-btn') || el.closest('.slot-btn') || el.closest('.checkout-modal'))) return;
-    setSirenEvents(prev => [...prev, { x, y, id: Date.now() }]);
-  };
 
   // Triggered when client clicks "Proceed to Checkout"
   const handleProceedBooking = (e) => {
@@ -162,11 +153,7 @@ const DoctorDetails = () => {
         <div className="glow-orb glow-orb-3"></div>
       </div>
       
-      <ParticlesBackground />
-      <CustomCursor onSiren={handleSiren} />
-      <SirenEffectContainer sirenEvents={sirenEvents} />
-      <LoadingScreen text="BOOK CONSULTATION" subtitle="Check slot timings & proceed to payment" />
-      
+                              
       <Header />
       
       <main style={{ paddingTop: '120px', minHeight: '80vh', paddingBottom: '60px' }}>

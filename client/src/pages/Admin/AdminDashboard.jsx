@@ -3,9 +3,6 @@ import { api } from '../../context/AuthContext';
 import { NotificationContext } from '../../context/NotificationContext';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import ParticlesBackground from '../../components/ParticlesBackground';
-import CustomCursor from '../../components/CustomCursor';
-import SirenEffectContainer from '../../components/SirenEffectContainer';
 import LoadingScreen from '../../components/LoadingScreen';
 import { Bar } from 'react-chartjs-2';
 import {
@@ -29,8 +26,7 @@ ChartJS.register(
 
 const AdminDashboard = () => {
   const { triggerToast } = useContext(NotificationContext);
-  const [sirenEvents, setSirenEvents] = useState([]);
-  
+    
   const [stats, setStats] = useState(null);
   const [doctors, setDoctors] = useState([]);
   const [patients, setPatients] = useState([]);
@@ -69,11 +65,6 @@ const AdminDashboard = () => {
     fetchAdminData();
   }, []);
 
-  const handleSiren = (x, y) => {
-    const el = document.elementFromPoint(x, y);
-    if (el && (el.tagName === 'A' || el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.closest('.nav-item') || el.closest('.profile-btn') || el.closest('.action-btn'))) return;
-    setSirenEvents(prev => [...prev, { x, y, id: Date.now() }]);
-  };
 
   const handleApproveDoctor = async (id) => {
     try {
@@ -173,11 +164,7 @@ const AdminDashboard = () => {
         <div className="glow-orb glow-orb-3"></div>
       </div>
       
-      <ParticlesBackground />
-      <CustomCursor onSiren={handleSiren} />
-      <SirenEffectContainer sirenEvents={sirenEvents} />
-      <LoadingScreen text="ADMIN PANEL" subtitle="Admin dashboards analytics" />
-      
+                              
       <Header />
       
       <main style={{ paddingTop: '120px', minHeight: '80vh', paddingBottom: '60px' }}>
