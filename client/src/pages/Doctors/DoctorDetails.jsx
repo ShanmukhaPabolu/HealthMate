@@ -78,18 +78,11 @@ const DoctorDetails = () => {
   }, [id]);
 
 
-  // Triggered when client clicks "Proceed to Checkout"
-  const handleProceedBooking = (e) => {
+  // Submit booking directly and create appointment
+  const handleProceedBooking = async (e) => {
     e.preventDefault();
     if (!bookingDate) return triggerToast('Please choose a consultation date.', 'error');
     if (!selectedSlot) return triggerToast('Please choose a time slot.', 'error');
-    setShowCheckoutModal(true);
-  };
-
-  // Submit payment checkout and create appointment
-  const handleCheckoutSubmit = async (e) => {
-    e.preventDefault();
-    if (!cardNumber || !cardCvv) return triggerToast('Please fill out card details.', 'error');
     setProcessingPayment(true);
 
     try {
@@ -110,12 +103,11 @@ const DoctorDetails = () => {
       });
 
       if (response.data.success) {
-        triggerToast('Payment simulated and Appointment booked!', 'success');
+        triggerToast('Appointment booked successfully!', 'success');
         setBookingSuccessData(response.data.appointment);
-        setShowCheckoutModal(false);
       }
     } catch (err) {
-      triggerToast(err.response?.data?.message || 'Booking transaction failed.', 'error');
+      triggerToast(err.response?.data?.message || 'Booking failed.', 'error');
     } finally {
       setProcessingPayment(false);
     }
@@ -404,8 +396,8 @@ const DoctorDetails = () => {
                     />
                   </div>
 
-                  <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                    Proceed to Payment
+                  <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} disabled={processingPayment}>
+                    {processingPayment ? 'Booking...' : 'Book Appointment'}
                   </button>
                 </form>
               )}
@@ -414,105 +406,7 @@ const DoctorDetails = () => {
         </div>
       </main>
 
-      {/* Payment checkout simulation Modal overlay */}
-      {showCheckoutModal && (
-        <div className="checkout-modal" style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100vh',
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 100010
-        }}>
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: '24px',
-            padding: '40px',
-            width: '90%',
-            maxWidth: '500px',
-            boxShadow: 'var(--shadow-xl)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '20px'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '15px' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '800' }}>Simulate Card Checkout</h3>
-              <i className="fas fa-times-circle" onClick={() => setShowCheckoutModal(false)} style={{ fontSize: '1.5rem', cursor: 'pointer', color: 'var(--text-muted)' }} />
-            </div>
 
-            <div style={{ backgroundColor: 'rgba(0,123,255,0.05)', padding: '15px', borderRadius: '12px', border: '1px solid rgba(0,123,255,0.1)' }}>
-              <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)' }}>Consultation appointment payment simulation.</p>
-              <div style={{ fontSize: '1.5rem', fontWeight: '900', color: 'var(--accent-blue)', marginTop: '8px' }}>Total Amount: ${doctor.consultationFee}</div>
-            </div>
-
-            <form onSubmit={handleCheckoutSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              <div className="input-group">
-                <label>Cardholder Name</label>
-                <input
-                  type="text"
-                  value={cardName}
-                  onChange={(e) => setCardName(e.target.value)}
-                  placeholder="John Doe"
-                  required
-                  style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}
-                />
-              </div>
-
-              <div className="input-group">
-                <label>Card Number</label>
-                <input
-                  type="text"
-                  value={cardNumber}
-                  onChange={(e) => setCardNumber(e.target.value)}
-                  placeholder="4111 2222 3333 4444"
-                  maxLength={19}
-                  required
-                  style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                <div className="input-group">
-                  <label>Expiry (MM/YY)</label>
-                  <input
-                    type="text"
-                    value={cardExpiry}
-                    onChange={(e) => setCardExpiry(e.target.value)}
-                    placeholder="12/28"
-                    required
-                    style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}
-                  />
-                </div>
-                <div className="input-group">
-                  <label>CVV</label>
-                  <input
-                    type="password"
-                    value={cardCvv}
-                    onChange={(e) => setCardCvv(e.target.value)}
-                    placeholder="***"
-                    maxLength={3}
-                    required
-                    style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={processingPayment}
-                className="btn btn-primary"
-                style={{ width: '100%', justifyContent: 'center', background: 'var(--accent-gradient)', marginTop: '10px' }}
-              >
-                {processingPayment ? 'Processing simulated gateway...' : `Pay $${doctor.consultationFee}`}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
 
       <Footer />
     </>
