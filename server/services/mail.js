@@ -1,9 +1,10 @@
 const nodemailer = require('nodemailer');
+const path = require('path');
 
 // Create transporter lazily so it always picks up latest env values
 const getTransporter = () => {
   try {
-    require('dotenv').config();
+    require('dotenv').config({ path: path.join(__dirname, '../.env') });
   } catch (e) {
     console.error('Failed to reload dotenv in mail service:', e.message);
   }
