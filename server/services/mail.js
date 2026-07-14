@@ -1,15 +1,22 @@
 const nodemailer = require('nodemailer');
 
 // Create transporter lazily so it always picks up latest env values
-const getTransporter = () => nodemailer.createTransport({
-  host: process.env.MAIL_SERVER || 'smtp.gmail.com',
-  port: parseInt(process.env.MAIL_PORT || '587'),
-  secure: false,
-  auth: {
-    user: process.env.MAIL_USER || 'shanmukharani20@gmail.com',
-    pass: process.env.MAIL_PASS || 'ddte qmgi aked mtno'
+const getTransporter = () => {
+  try {
+    require('dotenv').config();
+  } catch (e) {
+    console.error('Failed to reload dotenv in mail service:', e.message);
   }
-});
+  return nodemailer.createTransport({
+    host: process.env.MAIL_SERVER || 'smtp.gmail.com',
+    port: parseInt(process.env.MAIL_PORT || '587'),
+    secure: false,
+    auth: {
+      user: process.env.MAIL_USER || 'shanmukharani20@gmail.com',
+      pass: process.env.MAIL_PASS || 'ddte qmgi aked mtno'
+    }
+  });
+};
 
 // Send custom email helper
 const sendEmail = async (options) => {
