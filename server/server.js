@@ -17,6 +17,9 @@ connectDB();
 
 const app = express();
 
+// Trust proxy for rate limiting (needed on Render/Railway/Heroku reverse proxies)
+app.set('trust proxy', 1);
+
 // Body parser
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));

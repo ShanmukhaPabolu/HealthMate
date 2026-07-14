@@ -8,10 +8,11 @@ const getTransporter = () => {
   } catch (e) {
     console.error('Failed to reload dotenv in mail service:', e.message);
   }
+  const port = parseInt(process.env.MAIL_PORT || '587');
   return nodemailer.createTransport({
     host: process.env.MAIL_SERVER || 'smtp.gmail.com',
-    port: parseInt(process.env.MAIL_PORT || '587'),
-    secure: false,
+    port,
+    secure: port === 465,
     auth: {
       user: process.env.MAIL_USER || 'shanmukharani20@gmail.com',
       pass: process.env.MAIL_PASS || 'ddte qmgi aked mtno'
