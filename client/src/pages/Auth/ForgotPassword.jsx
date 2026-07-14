@@ -10,6 +10,14 @@ const ForgotPassword = () => {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+
+  const showToast = (msg, type = 'success') => {
+    setToast({ show: true, message: msg, type });
+    setTimeout(() => {
+      setToast({ show: false, message: '', type: 'success' });
+    }, 4000);
+  };
 
 
   // Step 1: Send Reset OTP
@@ -21,10 +29,13 @@ const ForgotPassword = () => {
       const response = await axios.post('/api/auth/forgot-password', { email });
       if (response.data.success) {
         setMessage(response.data.message);
+        showToast('Verification code sent successfully to ' + email, 'success');
         setShowResetForm(true);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'User with this email not found.');
+      const errMsg = err.response?.data?.message || 'User with this email not found.';
+      setError(errMsg);
+      showToast(errMsg, 'error');
     }
   };
 
@@ -37,17 +48,57 @@ const ForgotPassword = () => {
       const response = await axios.post('/api/auth/reset-password', { email, otp, password });
       if (response.data.success) {
         setMessage(response.data.message);
+        showToast('Password updated successfully! Redirecting...', 'success');
         setTimeout(() => {
           navigate('/login');
         }, 3000);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid or expired OTP.');
+      const errMsg = err.response?.data?.message || 'Invalid or expired OTP.';
+      setError(errMsg);
+      showToast(errMsg, 'error');
     }
   };
 
   return (
     <>
+      <style>{`
+        @keyframes slideIn {
+          from {
+            transform: translate(20px, -20px);
+            opacity: 0;
+          }
+          to {
+            transform: translate(0, 0);
+            opacity: 1;
+          }
+        }
+      `}</style>
+
+      {toast.show && (
+        <div style={{
+          position: 'fixed',
+          top: '30px',
+          right: '30px',
+          backgroundColor: toast.type === 'success' ? '#10b981' : '#ef4444',
+          color: 'white',
+          padding: '16px 24px',
+          borderRadius: '16px',
+          boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          fontWeight: '600',
+          fontSize: '15px',
+          animation: 'slideIn 0.3s ease-out forwards',
+          border: '1px solid rgba(255, 255, 255, 0.2)'
+        }}>
+          <i className={`fas ${toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}`} style={{ fontSize: '18px' }}></i>
+          <span>{toast.message}</span>
+        </div>
+      )}
+
       <div className="background-effects">
         <div className="glow-orb glow-orb-1"></div>
         <div className="glow-orb glow-orb-2"></div>
