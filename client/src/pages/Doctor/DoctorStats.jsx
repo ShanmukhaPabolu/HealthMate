@@ -3,10 +3,6 @@ import { Bar, Line } from 'react-chartjs-2';
 import { api } from '../../context/AuthContext';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import ParticlesBackground from '../../components/ParticlesBackground';
-import CustomCursor from '../../components/CustomCursor';
-import SirenEffectContainer from '../../components/SirenEffectContainer';
-import LoadingScreen from '../../components/LoadingScreen';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -32,18 +28,30 @@ ChartJS.register(
   Filler
 );
 
+const CHART_OPTIONS = {
+  responsive: true,
+  plugins: { legend: { display: false } },
+  scales: {
+    x: { grid: { color: 'rgba(0,0,0,0.05)' } },
+    y: { grid: { color: 'rgba(0,0,0,0.05)' } }
+  }
+};
+
 const DoctorStats = () => {
-  const [sirenEvents, setSirenEvents] = useState([]);
   const [statsData, setStatsData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchStats = async () => {
+    setLoading(true);
     try {
       const response = await api.get('/doctors/dashboard');
-      if (response.data.success) {
-        setStatsData(response.data.analytics);
+      if (response.data.success && response.data.data) {
+        setStatsData(response.data.data.stats);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Failed to load doctor statistics', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -51,24 +59,20 @@ const DoctorStats = () => {
     fetchStats();
   }, []);
 
-  const handleSiren = (x, y) => {
-    const el = document.elementFromPoint(x, y);
-    if (el && (el.tagName === 'A' || el.tagName === 'BUTTON' || el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.closest('.nav-item') || el.closest('.profile-btn'))) return;
-    setSirenEvents(prev => [...prev, { x, y, id: Date.now() }]);
-  };
-
   const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
 
   const earningsData = {
     labels,
     datasets: [
       {
-        label: 'Monthly Earnings ($)',
-        data: [1200, 1900, 1500, 2400, 2200, 3000, statsData ? (statsData.completedCount * 100) : 2800],
+        label: 'Monthly Earnings (₹)',
+        data: [15000, 22000, 18000, 28000, 24000, 32000, statsData ? statsData.totalEarnings : 30000],
         borderColor: '#28a745',
-        backgroundColor: 'rgba(40, 167, 69, 0.2)',
+        backgroundColor: 'rgba(40, 167, 69, 0.1)',
         tension: 0.4,
-        fill: true
+        fill: true,
+        pointBackgroundColor: '#28a745',
+        pointRadius: 5
       }
     ]
   };
@@ -78,76 +82,82 @@ const DoctorStats = () => {
     datasets: [
       {
         label: 'Completed Consultations',
-        data: [15, 22, 18, 28, 25, 34, statsData ? statsData.completedCount : 30],
-        backgroundColor: '#007bff',
-        borderRadius: 6
+        data: [12, 19, 15, 24, 20, 28, statsData ? statsData.completedAppointments : 25],
+        backgroundColor: 'rgba(0, 123, 255, 0.7)',
+        borderColor: '#007bff',
+        borderRadius: 8
       }
     ]
   };
 
   return (
     <>
-      <div className="background-effects">
-        <div className="glow-orb glow-orb-1" style={{ background: 'radial-gradient(circle, var(--accent-green) 0%, transparent 70%)' }}></div>
-        <div className="glow-orb glow-orb-2"></div>
-        <div className="glow-orb glow-orb-3"></div>
-      </div>
-      
-      <ParticlesBackground />
-      <CustomCursor onSiren={handleSiren} />
-      <SirenEffectContainer sirenEvents={sirenEvents} />
-      <LoadingScreen text="ANALYTICS PORTAL" subtitle="Examine consultation metrics curves" />
-      
       <Header />
       
-      <main style={{ paddingTop: '120px', minHeight: '80vh' }}>
-        <div className="container">
-          <h1 style={{ fontSize: '2.2rem', fontWeight: 950, marginBottom: '40px' }}>Doctor Analytics & <span className="gradient-text">Earnings curve</span></h1>
-
-          {/* Quick Metrics Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '40px' }}>
-            <div style={{ background: 'rgba(255,255,255,0.85)', padding: '20px', borderRadius: '16px', border: '1px solid var(--border-subtle)', textAlign: 'center' }}>
-              <i className="fas fa-calendar-check" style={{ fontSize: '1.8rem', color: '#007bff', marginBottom: '8px' }} />
-              <h4>Total Bookings</h4>
-              <p style={{ fontSize: '22px', fontWeight: '900' }}>{statsData ? statsData.totalAppointments : 0}</p>
-            </div>
-            <div style={{ background: 'rgba(255,255,255,0.85)', padding: '20px', borderRadius: '16px', border: '1px solid var(--border-subtle)', textAlign: 'center' }}>
-              <i className="fas fa-check-circle" style={{ fontSize: '1.8rem', color: '#28a745', marginBottom: '8px' }} />
-              <h4>Completed Consults</h4>
-              <p style={{ fontSize: '22px', fontWeight: '900' }}>{statsData ? statsData.completedCount : 0}</p>
-            </div>
-            <div style={{ background: 'rgba(255,255,255,0.85)', padding: '20px', borderRadius: '16px', border: '1px solid var(--border-subtle)', textAlign: 'center' }}>
-              <i className="fas fa-dollar-sign" style={{ fontSize: '1.8rem', color: '#fd7e14', marginBottom: '8px' }} />
-              <h4>Pending Reviews</h4>
-              <p style={{ fontSize: '22px', fontWeight: '900' }}>{statsData ? statsData.pendingCount : 0}</p>
-            </div>
+      <main style={{ paddingTop: '100px', minHeight: '80vh', background: 'var(--clr-gray-50)' }}>
+        <div className="container" style={{ paddingBottom: '4rem' }}>
+          
+          <div style={{ marginBottom: '32px' }}>
+            <h1 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '6px' }}>
+              Doctor <span className="gradient-text">Analytics</span>
+            </h1>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+              Inspect your consultation counts, earnings curves, and patient booking metrics.
+            </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', flexWrap: 'wrap' }}>
-            <div style={{
-              background: 'rgba(255, 255, 255, 0.85)',
-              backdropFilter: 'blur(20px)',
-              padding: '30px',
-              borderRadius: '24px',
-              border: '1px solid var(--border-subtle)',
-              boxShadow: 'var(--shadow-lg)'
-            }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '20px' }}>Revenue curve</h3>
-              <Line data={earningsData} options={{ responsive: true, plugins: { legend: { display: false } } }} />
+          {loading ? (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem', color: 'var(--clr-primary)' }}>
+              <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem' }} />
             </div>
+          ) : (
+            <>
+              {/* Quick Metrics Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginBottom: '40px' }}>
+                
+                {[
+                  { label: 'Total Bookings', value: statsData?.totalAppointments || 0, icon: 'fas fa-calendar-check', color: '#007bff' },
+                  { label: 'Completed Consults', value: statsData?.completedAppointments || 0, icon: 'fas fa-check-circle', color: '#28a745' },
+                  { label: 'Pending Consults', value: statsData?.pendingAppointments || 0, icon: 'fas fa-clock', color: '#ffc107' },
+                  { label: 'Total Earnings (₹)', value: statsData?.totalEarnings || 0, icon: 'fas fa-wallet', color: '#fd7e14' }
+                ].map((kpi, index) => (
+                  <div key={index} className="card" style={{ display: 'flex', flexDirection: 'column', gap: '12px', background: 'white' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{
+                        width: '36px', height: '36px', borderRadius: '8px',
+                        background: `${kpi.color}15`, color: kpi.color,
+                        display: 'flex', alignItems: 'center', justifySelf: 'center', justifyContent: 'center'
+                      }}>
+                        <i className={kpi.icon} />
+                      </div>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>{kpi.label}</span>
+                    </div>
+                    <div style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--clr-gray-900)' }}>
+                      {typeof kpi.value === 'number' && kpi.label.includes('Earnings') ? `₹${kpi.value.toLocaleString()}` : kpi.value}
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-            <div style={{
-              background: 'rgba(255, 255, 255, 0.85)',
-              backdropFilter: 'blur(20px)',
-              padding: '30px',
-              borderRadius: '24px',
-              border: '1px solid var(--border-subtle)',
-              boxShadow: 'var(--shadow-lg)'
-            }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '20px' }}>Patient consults</h3>
-              <Bar data={consultsData} options={{ responsive: true, plugins: { legend: { display: false } } }} />
-            </div>
-          </div>
+              {/* Chart displays */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '30px' }}>
+                
+                <div className="card" style={{ background: 'white' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '20px', color: 'var(--clr-gray-900)' }}>
+                    Revenue Curve (₹)
+                  </h3>
+                  <Line data={earningsData} options={CHART_OPTIONS} />
+                </div>
+
+                <div className="card" style={{ background: 'white' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '20px', color: 'var(--clr-gray-900)' }}>
+                    Patient Consultation Trends
+                  </h3>
+                  <Bar data={consultsData} options={CHART_OPTIONS} />
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </main>
 
