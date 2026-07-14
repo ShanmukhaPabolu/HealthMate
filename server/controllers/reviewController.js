@@ -1,6 +1,27 @@
 const Review = require('../models/Review');
 const Appointment = require('../models/Appointment');
 
+// @desc    Get reviews (optionally filtered by doctorId)
+// @route   GET /api/reviews?doctorId=X&limit=10
+// @access  Public
+exports.getReviews = async (req, res, next) => {
+  try {
+    const query = {};
+    if (req.query.doctorId) query.doctor = req.query.doctorId;
+    const limit = parseInt(req.query.limit) || 20;
+
+    const reviews = await Review.find(query)
+      .populate('patient', 'name profileImage')
+      .populate('doctor', 'specialization')
+      .sort('-createdAt')
+      .limit(limit);
+
+    res.status(200).json({ success: true, count: reviews.length, data: reviews });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // @desc    Add a review for a doctor
 // @route   POST /api/reviews
 // @access  Private (Patient only)

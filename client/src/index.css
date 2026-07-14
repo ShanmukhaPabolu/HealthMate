@@ -26,6 +26,10 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+
+/* Only hide native cursor when CustomCursor is mounted */
+.custom-cursor-active * {
     cursor: none !important;
 }
 
@@ -595,5 +599,43 @@ body {
     .footer-main {
         grid-template-columns: 1fr;
         gap: 2.5rem;
+    }
+}
+
+/* ── Home page responsive ───────────────────── */
+@media (max-width: 960px) {
+    /* Hero 2-col → 1-col */
+    .hero-grid {
+        grid-template-columns: 1fr !important;
+        text-align: center;
+    }
+    .hero-grid > div:last-child {
+        display: none; /* hide booking card on tablet — not enough room */
+    }
+    .hero-ctas {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 640px) {
+    /* Containers get tighter padding */
+    .container {
+        padding: 0 1.2rem;
+    }
+    /* Trust strip wraps to 2 col */
+    .trust-strip {
+        grid-template-columns: 1fr 1fr !important;
+    }
+    /* Feature cards full width */
+    .features-grid {
+        grid-template-columns: 1fr !important;
+    }
+    /* Specialty grid 3 per row */
+    .specialty-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+    /* Testimonials 1 col */
+    .testimonials-grid {
+        grid-template-columns: 1fr !important;
     }
 }

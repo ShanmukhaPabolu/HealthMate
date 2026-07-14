@@ -42,13 +42,22 @@ app.use(mongoSanitize());
 // Prevent XSS attacks
 app.use(xss());
 
-// Rate limiting
+// Rate limiting — general API
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // Limit each IP to 1000 requests per windowMs
+  max: 500,
   message: 'Too many requests from this IP, please try again after 15 minutes'
 });
 app.use('/api', limiter);
+
+// Stricter rate limit for auth routes (prevent brute-force)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20, // 20 login attempts per 15 minutes per IP
+  message: 'Too many login attempts, please try again after 15 minutes'
+});
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
 
 // Import Route Files
 const authRoutes = require('./routes/auth');
