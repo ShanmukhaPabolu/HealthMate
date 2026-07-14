@@ -208,7 +208,7 @@ const Dashboard = () => {
           left: 0,
           width: '100%',
           height: '100%',
-          background: `radial-gradient(circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(220, 53, 69, 0.05) 0%, transparent 50%), radial-gradient(circle at ${window.innerWidth - mousePosition.x}px ${window.innerHeight - mousePosition.y}px, rgba(0, 123, 255, 0.05) 0%, transparent 50%)`,
+          background: `radial-gradient(circle at 30% 30%, rgba(220, 53, 69, 0.05) 0%, transparent 50%), radial-gradient(circle at 70% 70%, rgba(0, 123, 255, 0.05) 0%, transparent 50%)`,
           zIndex: -1,
           pointerEvents: 'none'
         }}
