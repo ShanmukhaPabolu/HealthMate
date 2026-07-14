@@ -1,0 +1,17 @@
+{
+  "name": "healthmate",
+  "version": "1.0.0",
+  "description": "Production MERN Doctor Booking & Health Tracker Platform",
+  "scripts": {
+    "install-client": "cd client && npm install",
+    "install-server": "cd server && npm install",
+    "install-all": "npm run install-server && npm run install-client",
+    "build-client": "cd client && npm run build",
+    "build": "npm run install-all && npm run build-client",
+    "start": "cd server && npm start",
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\""
+  },
+  "dependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

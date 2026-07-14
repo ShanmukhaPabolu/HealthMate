@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -92,6 +93,14 @@ app.use('/api/disputes', disputeRoutes);
 app.use('/api/user', userTrackerRouter); // activities, diet, workouts, reminders
 app.use('/api/doctor', doctorTrackerRouter); // patients view logs
 app.use('/api/shared', sharedTrackerRouter); // askAI, symptoms tracker
+
+// Serve static assets in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client/dist')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../client', 'dist', 'index.html'));
+  });
+}
 
 // Centralized Error Handler Middleware
 app.use(errorHandler);
